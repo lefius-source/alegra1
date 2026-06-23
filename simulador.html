@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CloudMetrics · Caso de Negocio</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFFFFF;
+    --surface: #F7F8FA;
+    --surface2: #EFF1F5;
+    --border: #E4E7ED;
+    --text: #0F1117;
+    --muted: #6B7280;
+    --accent: #1A56DB;
+    --accent-dim: #EBF0FD;
+    --danger: #DC2626;
+    --danger-dim: #FEF2F2;
+    --amber: #D97706;
+    --amber-dim: #FFFBEB;
+    --green: #059669;
+    --green-dim: #ECFDF5;
+  }
+
+  html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Open Sans', sans-serif; overflow: hidden; }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4vw 7vw;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+  }
+
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.4rem, 4.5vw, 4rem); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; color: var(--text); }
+  h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 700; line-height: 1.12; letter-spacing: -0.01em; color: var(--text); margin-bottom: 1.75rem; }
+
+  .subtitle { font-size: clamp(0.9rem, 1.5vw, 1.1rem); color: var(--muted); line-height: 1.7; max-width: 580px; margin-top: 1.25rem; font-weight: 400; }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 5px 14px; border-radius: 100px; border: 1.5px solid var(--border); color: var(--muted); margin-bottom: 2rem; }
+
+  .accent-bar { width: 40px; height: 3px; background: var(--accent); margin-bottom: 2rem; border-radius: 2px; }
+
+  /* Slide 2 */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 2rem; }
+  .stat-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+  .stat-card.red-card { background: var(--danger-dim); border-color: #FECACA; }
+  .stat-card.amber-card { background: var(--amber-dim); border-color: #FDE68A; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 2.8vw, 2.6rem); font-weight: 800; margin-bottom: 0.4rem; }
+  .stat-num.red { color: var(--danger); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.blue { color: var(--accent); }
+  .stat-label { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* Slide 3 */
+  .layers { display: flex; flex-direction: column; gap: 0.85rem; margin-top: 1.5rem; }
+  .layer { display: flex; align-items: flex-start; gap: 1.25rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1.4rem; }
+  .layer-num { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 1.8rem; }
+  .layer-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: var(--text); }
+  .layer-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* Slide 4 */
+  .flow-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+  .flow-step { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1.25rem; position: relative; }
+  .flow-step::after { content: '→'; position: absolute; right: -0.8rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1rem; z-index: 2; }
+  .flow-step:last-child::after { display: none; }
+  .flow-icon { font-size: 1.3rem; margin-bottom: 0.6rem; }
+  .flow-title { font-size: 13px; font-weight: 700; margin-bottom: 0.4rem; color: var(--text); }
+  .flow-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+  .segment-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.25rem; }
+  .segment { border-radius: 10px; padding: 1rem 1.25rem; border: 1.5px solid transparent; }
+  .segment.verde { background: var(--green-dim); border-color: #A7F3D0; }
+  .segment.amarillo { background: var(--amber-dim); border-color: #FDE68A; }
+  .segment.rojo { background: var(--danger-dim); border-color: #FECACA; }
+  .segment-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .segment.verde .segment-name { color: var(--green); }
+  .segment.amarillo .segment-name { color: var(--amber); }
+  .segment.rojo .segment-name { color: var(--danger); }
+  .segment-action { font-size: 12px; color: var(--muted); }
+
+  /* Slide 5 */
+  .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.75rem; }
+  .impact-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.4rem; }
+  .impact-card.featured { background: var(--accent-dim); border-color: #BFDBFE; }
+  .impact-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.4rem; }
+  .impact-val { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .impact-desc { font-size: 13px; color: var(--muted); margin-top: 0.35rem; line-height: 1.55; }
+
+  /* Slide 6 */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 1.75rem; align-items: start; }
+  .col-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 1rem; }
+  .resource-list { display: flex; flex-direction: column; gap: 0.7rem; }
+  .resource-item { display: flex; align-items: center; gap: 0.75rem; font-size: 14px; color: var(--text); }
+  .resource-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: flex; gap: 1rem; padding-bottom: 1.1rem; position: relative; }
+  .timeline-item:not(:last-child)::before { content: ''; position: absolute; left: 7px; top: 16px; bottom: 0; width: 1.5px; background: var(--border); }
+  .tl-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--accent); background: var(--bg); flex-shrink: 0; margin-top: 2px; }
+  .tl-period { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+  .tl-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* Slide 7 */
+  .close-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 2.5rem 3rem; margin-top: 2rem; max-width: 700px; }
+  .close-statement { font-family: 'Syne', sans-serif; font-size: clamp(1.4rem, 2.5vw, 2.1rem); font-weight: 700; line-height: 1.25; color: var(--text); }
+  .close-statement em { color: var(--accent); font-style: normal; }
+
+  /* Nav */
+  .nav {
+    position: fixed;
+    bottom: 1.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .nav-btn { background: none; border: none; color: var(--text); cursor: pointer; font-size: 1rem; padding: 0.25rem 0.75rem; border-radius: 100px; transition: background 0.15s; font-family: 'Open Sans', sans-serif; }
+  .nav-btn:hover { background: var(--surface); }
+  .nav-btn:disabled { opacity: 0.25; cursor: default; }
+  .nav-counter { font-size: 13px; color: var(--muted); min-width: 48px; text-align: center; font-weight: 600; }
+
+  .dots { position: fixed; right: 1.75rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.3s, transform 0.3s; cursor: pointer; border: 1.5px solid var(--border); }
+  .dot.active { background: var(--accent); border-color: var(--accent); transform: scale(1.5); }
+
+  /* slide number top right */
+  .slide-num { position: fixed; top: 1.75rem; right: 2.5rem; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 0.05em; }
+  .logo-mark { position: fixed; top: 1.75rem; left: 2.5rem; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+</style>
+</head>
+<body>
+
+<div class="logo-mark">CloudMetrics</div>
+<div class="slide-num" id="slide-num">01 / 07</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 — Portada -->
+  <div class="slide active" data-slide="0">
+    <div class="tag">CE Ops Lead · Caso de negocio · 2026</div>
+    <div class="accent-bar"></div>
+    <h1>Dejamos ir a clientes<br>que ya pagamos.</h1>
+    <p class="subtitle">Cómo un sistema de onboarding inteligente reduce el churn temprano y protege el ingreso recurrente de CloudMetrics.</p>
+    <p style="font-size:13px;color:var(--muted);margin-top:3rem;font-weight:600;">Juan Esteban Gutiérrez</p>
+  </div>
+
+  <!-- SLIDE 2 — El problema -->
+  <div class="slide" data-slide="1">
+    <div class="eyebrow">El problema</div>
+    <h2>El churn temprano es el más caro</h2>
+    <div class="stat-row">
+      <div class="stat-card red-card">
+        <div class="stat-num red">30%</div>
+        <div class="stat-label">de usuarios churna antes de renovar su primer mes en SaaS B2B sin onboarding estructurado</div>
+      </div>
+      <div class="stat-card amber-card">
+        <div class="stat-num amber">$300</div>
+        <div class="stat-label">CAC — Costo de Adquisición del Cliente — ya gastado antes de que el usuario genere valor</div>
+      </div>
+      <div class="stat-card red-card">
+        <div class="stat-num red">$100</div>
+        <div class="stat-label">LTV — Lifetime Value — realizado si churna en el mes 1. El CAC nunca se recupera.</div>
+      </div>
+    </div>
+    <p class="subtitle">Cuando el equipo de CS reacciona, el usuario ya decidió irse. El problema no es la retención — es que llegamos tarde.</p>
+  </div>
+
+  <!-- SLIDE 3 — Diagnóstico -->
+  <div class="slide" data-slide="2">
+    <div class="eyebrow">Diagnóstico</div>
+    <h2>Tres capas del mismo problema</h2>
+    <div class="layers">
+      <div class="layer">
+        <div class="layer-num">1</div>
+        <div>
+          <div class="layer-title">Sin journey estructurado</div>
+          <div class="layer-desc">El usuario se registra y queda solo. Nadie lo guía hacia el valor real del producto. No hay un camino claro hacia el primer éxito.</div>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-num">2</div>
+        <div>
+          <div class="layer-title">Sin visibilidad de comportamiento</div>
+          <div class="layer-desc">El equipo no sabe quién está adoptando CloudMetrics y quién no. No hay señales tempranas. Todo es opaco hasta que el MRR cae.</div>
+        </div>
+      </div>
+      <div class="layer">
+        <div class="layer-num">3</div>
+        <div>
+          <div class="layer-title">El equipo reacciona, no previene</div>
+          <div class="layer-desc">Cuando el CS actúa, el usuario ya tomó la decisión de irse. La intervención llega tarde y cuesta más esfuerzo con menos resultado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — Solución -->
+  <div class="slide" data-slide="3">
+    <div class="eyebrow">La solución</div>
+    <h2>Detección temprana, intervención automática</h2>
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="flow-icon">⚡</div>
+        <div class="flow-title">Detección</div>
+        <div class="flow-desc">Trigger en días 3, 7 y 14 post-registro. El sistema consulta comportamiento del usuario automáticamente.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🧮</div>
+        <div class="flow-title">Clasificación</div>
+        <div class="flow-desc">Health Score con días activo, features usadas y último login. Resultado: Verde, Amarillo o Rojo.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon">🤖</div>
+        <div class="flow-title">Intervención IA</div>
+        <div class="flow-desc">Cada segmento recibe una acción diferente generada por IA. Sin intervención manual del equipo.</div>
+      </div>
+    </div>
+    <div class="segment-row">
+      <div class="segment verde">
+        <div class="segment-name">🟢 Verde · Sano</div>
+        <div class="segment-action">Email de upsell · Expansión de cuenta</div>
+      </div>
+      <div class="segment amarillo">
+        <div class="segment-name">🟡 Amarillo · En riesgo</div>
+        <div class="segment-action">Email de ayuda + Tarea en CRM</div>
+      </div>
+      <div class="segment rojo">
+        <div class="segment-name">🔴 Rojo · Crítico</div>
+        <div class="segment-action">WhatsApp urgente + Alerta al CS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — Impacto -->
+  <div class="slide" data-slide="4">
+    <div class="eyebrow">Impacto esperado</div>
+    <h2>Qué cambia en los primeros 90 días</h2>
+    <div class="impact-grid">
+      <div class="impact-card featured">
+        <div class="impact-label">Reducción de churn temprano</div>
+        <div class="impact-val">−20%</div>
+        <div class="impact-desc">Benchmark industria SaaS B2B con onboarding estructurado. Cada punto recuperado es MRR directo.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">Mejora en Activation Rate</div>
+        <div class="impact-val">+35%</div>
+        <div class="impact-desc">Más usuarios llegan al primer valor real del producto en los primeros 7 días.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">Ahorro en tiempo del equipo CS</div>
+        <div class="impact-val">−60%</div>
+        <div class="impact-desc">Las intervenciones manuales se reemplazan por acciones automáticas. El CS actúa solo donde hay riesgo real.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">LTV proyectado por usuario retenido</div>
+        <div class="impact-val">×12</div>
+        <div class="impact-desc">Un usuario que pasa el mes 1 tiene 12 veces más probabilidad de seguir pagando durante el año.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — Recursos y roadmap -->
+  <div class="slide" data-slide="5">
+    <div class="eyebrow">Recursos y escala</div>
+    <h2>Qué necesitamos y cómo crece</h2>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Para arrancar</div>
+        <div class="resource-list">
+          <div class="resource-item"><div class="resource-dot"></div>n8n — ya disponible o licencia mínima</div>
+          <div class="resource-item"><div class="resource-dot"></div>API de IA — OpenAI o Claude API</div>
+          <div class="resource-item"><div class="resource-dot"></div>CRM actual del equipo CS</div>
+          <div class="resource-item"><div class="resource-dot"></div>WhatsApp Business API</div>
+          <div class="resource-item"><div class="resource-dot"></div>1 persona técnica · 2 semanas de implementación</div>
+          <div class="resource-item"><div class="resource-dot"></div>Alineación del equipo CS para definir umbrales</div>
+        </div>
+      </div>
+      <div>
+        <div class="col-label">Roadmap 6 meses</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="tl-dot"></div>
+            <div>
+              <div class="tl-period">Mes 1–2</div>
+              <div class="tl-desc">Flow básico corriendo. Primeras cohortes medidas. Health Score calibrado con datos reales.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot"></div>
+            <div>
+              <div class="tl-period">Mes 3–4</div>
+              <div class="tl-desc">Segmentación más granular por plan y comportamiento. Playbooks diferenciados por vertical.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="tl-dot"></div>
+            <div>
+              <div class="tl-period">Mes 5–6</div>
+              <div class="tl-desc">Modelo predictivo con historial. Intervención proactiva antes del día 7. Dashboard en tiempo real.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 — Cierre -->
+  <div class="slide" data-slide="6">
+    <div class="eyebrow">La decisión</div>
+    <h2>No es un proyecto futuro.<br>Es una urgencia de hoy.</h2>
+    <div class="close-box">
+      <div class="close-statement">No resolver esto hoy significa seguir pagando para adquirir clientes <em>que nunca vamos a retener.</em></div>
+      <p style="font-size:14px;color:var(--muted);margin-top:1.25rem;line-height:1.6;">La solución está lista. El flow corre. Lo que necesitamos es la decisión de activarlo.</p>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-top:2.5rem;font-weight:600;">Juan Esteban Gutiérrez · CE Ops Lead · CloudMetrics 2026</p>
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+
+<div class="nav">
+  <button class="nav-btn" id="prev" onclick="go(-1)">←</button>
+  <span class="nav-counter" id="counter">1 / 7</span>
+  <button class="nav-btn" id="next" onclick="go(1)">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const slideNum = document.getElementById('slide-num');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[current].classList.remove('active');
+    dotsEl.children[current].classList.remove('active');
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides[current].classList.add('active');
+    dotsEl.children[current].classList.add('active');
+    const num = String(current + 1).padStart(2, '0');
+    const total = String(slides.length).padStart(2, '0');
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+    slideNum.textContent = num + ' / ' + total;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === slides.length - 1;
+  }
+
+  function go(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(-1);
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>
